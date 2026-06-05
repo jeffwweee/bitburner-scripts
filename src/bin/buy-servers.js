@@ -9,7 +9,7 @@ const STARTER_SERVER_RAM = 8;
 const SERVER_NAME_PREFIX = "bb-worker-";
 
 function collectPurchasedServers(ns) {
-  return ns.getPurchasedServers().map((hostname) => ({
+  return ns.cloud.getServerNames().map((hostname) => ({
     hostname,
     ram: ns.getServerMaxRam(hostname)
   }));
@@ -26,7 +26,7 @@ function collectUpgradeCosts(ns, purchasedServers, maxServerRam) {
     }
 
     upgradeCosts[`${server.hostname}:${nextRam}`] =
-      ns.getPurchasedServerUpgradeCost(server.hostname, nextRam);
+      ns.cloud.getServerUpgradeCost(server.hostname, nextRam);
   }
 
   return upgradeCosts;
@@ -59,12 +59,12 @@ function printServerUpgradeSummary(ns, upgrades) {
 }
 
 export async function main(ns) {
-  const serverCost = ns.getPurchasedServerCost(STARTER_SERVER_RAM);
+  const serverCost = ns.cloud.getServerCost(STARTER_SERVER_RAM);
   const serverPlan = planPurchasedServers({
     money: ns.getServerMoneyAvailable("home"),
     reserveRatio: RESERVE_RATIO,
-    purchasedServers: ns.getPurchasedServers(),
-    purchasedServerLimit: ns.getPurchasedServerLimit(),
+    purchasedServers: ns.cloud.getServerNames(),
+    purchasedServerLimit: ns.cloud.getServerLimit(),
     serverRam: STARTER_SERVER_RAM,
     serverCost,
     namePrefix: SERVER_NAME_PREFIX
@@ -72,7 +72,7 @@ export async function main(ns) {
   const boughtServers = [];
 
   for (const purchase of serverPlan.purchases) {
-    const hostname = ns.purchaseServer(purchase.hostname, purchase.ram);
+    const hostname = ns.cloud.purchaseServer(purchase.hostname, purchase.ram);
 
     if (hostname) {
       boughtServers.push({ ...purchase, hostname });
@@ -80,7 +80,7 @@ export async function main(ns) {
   }
 
   const purchasedServers = collectPurchasedServers(ns);
-  const maxServerRam = ns.getPurchasedServerMaxRam();
+  const maxServerRam = ns.cloud.getRamLimit();
   const upgradePlan = planPurchasedServerUpgrades({
     money: ns.getServerMoneyAvailable("home"),
     reserveRatio: RESERVE_RATIO,
@@ -91,7 +91,7 @@ export async function main(ns) {
   const upgradedServers = [];
 
   for (const upgrade of upgradePlan.upgrades) {
-    if (ns.upgradePurchasedServer(upgrade.hostname, upgrade.ram)) {
+    if (ns.cloud.upgradeServer(upgrade.hostname, upgrade.ram)) {
       upgradedServers.push(upgrade);
     }
   }
