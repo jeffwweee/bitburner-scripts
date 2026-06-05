@@ -26,9 +26,14 @@ function createHackOnceNs(overrides = {}) {
   return { ns, calls };
 }
 
-function createBootstrapNs({ playerSkill = 50, rootedHosts = [] } = {}) {
+function createBootstrapNs({
+  playerSkill = 50,
+  rootedHosts = [],
+  availablePrograms = []
+} = {}) {
   const calls = [];
   const rooted = new Set(rootedHosts);
+  const programs = new Set(availablePrograms);
   const serverStats = new Map([
     [
       "home",
@@ -43,7 +48,8 @@ function createBootstrapNs({ playerSkill = 50, rootedHosts = [] } = {}) {
       {
         maxMoney: 100000,
         minSecurity: 1,
-        requiredSkill: 1
+        requiredSkill: 1,
+        requiredPorts: 1
       }
     ],
     [
@@ -51,7 +57,8 @@ function createBootstrapNs({ playerSkill = 50, rootedHosts = [] } = {}) {
       {
         maxMoney: 1000,
         minSecurity: 1,
-        requiredSkill: 1
+        requiredSkill: 1,
+        requiredPorts: 0
       }
     ]
   ]);
@@ -65,7 +72,18 @@ function createBootstrapNs({ playerSkill = 50, rootedHosts = [] } = {}) {
       getServerMaxMoney: (host) => serverStats.get(host).maxMoney,
       getServerMinSecurityLevel: (host) => serverStats.get(host).minSecurity,
       getServerRequiredHackingLevel: (host) => serverStats.get(host).requiredSkill,
-      hasRootAccess: (host) => rooted.has(host)
+      getServerNumPortsRequired: (host) => serverStats.get(host).requiredPorts ?? 0,
+      hasRootAccess: (host) => rooted.has(host),
+      fileExists: (file) => programs.has(file),
+      brutessh: (host) => calls.push(`brutessh ${host}`),
+      ftpcrack: (host) => calls.push(`ftpcrack ${host}`),
+      relaysmtp: (host) => calls.push(`relaysmtp ${host}`),
+      httpworm: (host) => calls.push(`httpworm ${host}`),
+      sqlinject: (host) => calls.push(`sqlinject ${host}`),
+      nuke: (host) => {
+        calls.push(`nuke ${host}`);
+        rooted.add(host);
+      }
     }
   };
 }
@@ -125,10 +143,57 @@ test("bootstrap suggests the first eligible money-bearing target", async () => {
 
 test("bootstrap uses placeholder when no money-bearing target is eligible", async () => {
   const { ns, calls } = createBootstrapNs({
-    rootedHosts: ["home"]
+    rootedHosts: ["home"],
+    playerSkill: 0
   });
 
   await bootstrapMain(ns);
 
   assert.equal(calls.at(-1), "- run hack-once.js <target>");
+});
+
+test("bootstrap nukes eligible zero-port servers before suggesting targets", async () => {
+  const { ns, calls } = createBootstrapNs({
+    rootedHosts: ["home"]
+  });
+
+  await bootstrapMain(ns);
+
+  assert.ok(calls.includes("nuke ready-target"));
+  assert.equal(calls.at(-1), "- run hack-once.js ready-target");
+});
+
+test("bootstrap opens available ports before nuking eligible servers", async () => {
+  const { ns, calls } = createBootstrapNs({
+    rootedHosts: ["home", "ready-target"],
+    availablePrograms: ["BruteSSH.exe"],
+    playerSkill: 50
+  });
+
+  await bootstrapMain(ns);
+
+  assert.ok(calls.includes("brutessh locked-target"));
+  assert.ok(calls.includes("nuke locked-target"));
+});
+
+test("bootstrap skips rooting servers above the current hacking skill", async () => {
+  const { ns, calls } = createBootstrapNs({
+    rootedHosts: ["home", "ready-target"],
+    playerSkill: 0
+  });
+
+  await bootstrapMain(ns);
+
+  assert.equal(calls.includes("nuke locked-target"), false);
+});
+
+test("bootstrap skips rooting servers without enough port tools", async () => {
+  const { ns, calls } = createBootstrapNs({
+    rootedHosts: ["home", "ready-target"],
+    playerSkill: 50
+  });
+
+  await bootstrapMain(ns);
+
+  assert.equal(calls.includes("nuke locked-target"), false);
 });
