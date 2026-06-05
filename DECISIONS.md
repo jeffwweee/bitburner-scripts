@@ -12,3 +12,6 @@
 - **2026-06-05** — Start hacking automation with a simple deployed worker loop.
   - **Rationale:** Early-game passive money and hacking XP need robust RAM usage more than timed batching, so `auto-hack.js` fills rooted servers with `worker.js` threads against the best eligible target.
   - **Decided by:** Jeffrey and Codex
+- **2026-06-05** — Start purchases with `auto-purchaser.js`.
+  - **Rationale:** Early automation needs port programs and more worker RAM, but should keep a 20 percent cash reserve and avoid server replacement complexity until basic purchases prove useful.
+  - **Decided by:** Jeffrey and Codex

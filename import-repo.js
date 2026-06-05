@@ -7,6 +7,7 @@ const ALIASES = [
   ["bb-bootstrap", "run src/bin/bootstrap.js"],
   ["bb-scan", "run src/bin/scan.js"],
   ["bb-auto", "run src/bin/auto-hack.js"],
+  ["bb-buy", "run src/bin/auto-purchaser.js"],
   ["bb-hack-once", "run src/bin/hack-once.js"]
 ];
 
@@ -93,6 +94,7 @@ function printAliasGuidance(ns) {
 
   ns.tprint("Common flow:");
   ns.tprint("bb-import");
+  ns.tprint("bb-buy");
   ns.tprint("bb-bootstrap");
   ns.tprint("bb-auto");
 }

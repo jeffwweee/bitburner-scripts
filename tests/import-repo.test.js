@@ -9,6 +9,7 @@ test("buildAliasCommands returns common Bitburner aliases", () => {
     'alias bb-bootstrap="run src/bin/bootstrap.js"',
     'alias bb-scan="run src/bin/scan.js"',
     'alias bb-auto="run src/bin/auto-hack.js"',
+    'alias bb-buy="run src/bin/auto-purchaser.js"',
     'alias bb-hack-once="run src/bin/hack-once.js"'
   ]);
 });
