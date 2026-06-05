@@ -33,10 +33,13 @@ After this public repo is pushed to GitHub, copy the importer into Bitburner:
 wget https://raw.githubusercontent.com/jeffwweee/bitburner-scripts/main/import-repo.js import-repo.js
 run import-repo.js
 run src/bin/bootstrap.js
+run src/bin/auto-hack.js
 ```
 
 `import-repo.js` downloads `manifest.json`, then downloads every listed `src/` file into the same in-game path.
 
+Run `bootstrap.js` first to gain root access on eligible servers, then run `auto-hack.js` to copy workers to rooted servers and fill available RAM with passive weaken/grow/hack loops.
+
 ## Current Status
 
-Starter scaffold complete. Next focus: first in-game verification.
+Starter scaffold complete with early passive hacking automation.

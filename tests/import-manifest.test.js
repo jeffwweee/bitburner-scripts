@@ -22,6 +22,19 @@ test("planManifestDownloads returns download entries for valid manifests", () =>
   ]);
 });
 
+test("planManifestDownloads appends cache bust values to download URLs", () => {
+  assert.deepEqual(planManifestDownloads(validManifest, "abc 123"), [
+    {
+      url: "https://raw.githubusercontent.com/jeffwweee/bitburner-scripts/main/src/bin/bootstrap.js?cacheBust=abc%20123",
+      target: "src/bin/bootstrap.js"
+    },
+    {
+      url: "https://raw.githubusercontent.com/jeffwweee/bitburner-scripts/main/src/lib/format.js?cacheBust=abc%20123",
+      target: "src/lib/format.js"
+    }
+  ]);
+});
+
 test("planManifestDownloads rejects unsupported manifest versions", () => {
   assert.throws(
     () => planManifestDownloads({ ...validManifest, version: 2 }),

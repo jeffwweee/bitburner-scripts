@@ -11,6 +11,15 @@ function normalizeBaseUrl(baseUrl) {
   return baseUrl.replace(/\/+$/, "");
 }
 
+function appendCacheBust(url, cacheBust) {
+  if (!cacheBust) {
+    return url;
+  }
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}cacheBust=${encodeURIComponent(cacheBust)}`;
+}
+
 function assertValidPath(path) {
   if (typeof path !== "string" || path.length === 0) {
     throw new Error("Manifest file path must be a non-empty string.");
@@ -29,7 +38,7 @@ function assertValidPath(path) {
   }
 }
 
-function planManifestDownloads(manifest) {
+function planManifestDownloads(manifest, cacheBust = "") {
   if (!manifest || typeof manifest !== "object") {
     throw new Error("Manifest must be an object.");
   }
@@ -48,7 +57,7 @@ function planManifestDownloads(manifest) {
     assertValidPath(path);
 
     return {
-      url: `${baseUrl}/${path}`,
+      url: appendCacheBust(`${baseUrl}/${path}`, cacheBust),
       target: path
     };
   });
@@ -65,9 +74,12 @@ function readManifest(ns) {
 }
 
 export async function main(ns) {
-  ns.tprint(`Downloading manifest: ${MANIFEST_URL}`);
+  const cacheBust = String(Date.now());
+  const manifestUrl = appendCacheBust(MANIFEST_URL, cacheBust);
 
-  if (!(await ns.wget(MANIFEST_URL, MANIFEST_TARGET))) {
+  ns.tprint(`Downloading manifest: ${manifestUrl}`);
+
+  if (!(await ns.wget(manifestUrl, MANIFEST_TARGET))) {
     ns.tprint("Import failed: could not download manifest.");
     return;
   }
@@ -75,7 +87,7 @@ export async function main(ns) {
   let downloads;
 
   try {
-    downloads = planManifestDownloads(readManifest(ns));
+    downloads = planManifestDownloads(readManifest(ns), cacheBust);
   } catch (error) {
     ns.tprint(`Import failed: ${error.message}`);
     return;

@@ -9,3 +9,6 @@
 - **2026-06-05** — Bootstrap should gain root access before ranking targets.
   - **Rationale:** After imports, updates, patches, and fresh runs, bootstrap should make all currently eligible servers usable before suggesting hack targets.
   - **Decided by:** Jeffrey and Codex
+- **2026-06-05** — Start hacking automation with a simple deployed worker loop.
+  - **Rationale:** Early-game passive money and hacking XP need robust RAM usage more than timed batching, so `auto-hack.js` fills rooted servers with `worker.js` threads against the best eligible target.
+  - **Decided by:** Jeffrey and Codex

@@ -14,6 +14,15 @@ function normalizeBaseUrl(baseUrl) {
   return baseUrl.replace(/\/+$/, "");
 }
 
+function appendCacheBust(url, cacheBust) {
+  if (!cacheBust) {
+    return url;
+  }
+
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}cacheBust=${encodeURIComponent(cacheBust)}`;
+}
+
 function assertValidPath(path) {
   if (typeof path !== "string" || path.length === 0) {
     throw new Error("Manifest file path must be a non-empty string.");
@@ -32,7 +41,7 @@ function assertValidPath(path) {
   }
 }
 
-export function planManifestDownloads(manifest) {
+export function planManifestDownloads(manifest, cacheBust = "") {
   assertManifestObject(manifest);
 
   if (manifest.version !== SUPPORTED_VERSION) {
@@ -49,7 +58,7 @@ export function planManifestDownloads(manifest) {
     assertValidPath(path);
 
     return {
-      url: `${baseUrl}/${path}`,
+      url: appendCacheBust(`${baseUrl}/${path}`, cacheBust),
       target: path
     };
   });
