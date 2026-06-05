@@ -125,11 +125,12 @@ export async function main(ns) {
   }
 
   ns.tprint("Suggested next commands:");
-  ns.tprint("- run scan.js");
+  ns.tprint("- run src/bin/scan.js");
+  ns.tprint("- run src/bin/auto-hack.js");
 
   if (suggestedTarget) {
-    ns.tprint(`- run hack-once.js ${suggestedTarget.host}`);
+    ns.tprint(`- run src/bin/hack-once.js ${suggestedTarget.host}`);
   } else {
-    ns.tprint("- run hack-once.js <target>");
+    ns.tprint("- run src/bin/hack-once.js <target>");
   }
 }

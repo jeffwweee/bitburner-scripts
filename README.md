@@ -40,6 +40,16 @@ run src/bin/auto-hack.js
 
 Run `bootstrap.js` first to gain root access on eligible servers, then run `auto-hack.js` to copy workers to rooted servers and fill available RAM with passive weaken/grow/hack loops.
 
+After import, `import-repo.js` prints optional terminal aliases:
+
+```bash
+alias bb-import="run import-repo.js"
+alias bb-bootstrap="run src/bin/bootstrap.js"
+alias bb-scan="run src/bin/scan.js"
+alias bb-auto="run src/bin/auto-hack.js"
+alias bb-hack-once="run src/bin/hack-once.js"
+```
+
 ## Current Status
 
 Starter scaffold complete with early passive hacking automation.

@@ -8,3 +8,4 @@
 - Added a manifest-driven importer so Bitburner can refresh public GitHub scripts with one in-game command.
 - Added bootstrap root access automation for eligible discovered servers.
 - Added early auto-hack deployment that fills rooted server RAM with worker loops targeting the best eligible server.
+- Fixed suggested command paths and added importer alias guidance for common scripts.

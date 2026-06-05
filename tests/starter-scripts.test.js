@@ -138,7 +138,9 @@ test("bootstrap suggests the first eligible money-bearing target", async () => {
 
   await bootstrapMain(ns);
 
-  assert.equal(calls.at(-1), "- run hack-once.js ready-target");
+  assert.ok(calls.includes("- run src/bin/scan.js"));
+  assert.ok(calls.includes("- run src/bin/auto-hack.js"));
+  assert.equal(calls.at(-1), "- run src/bin/hack-once.js ready-target");
 });
 
 test("bootstrap uses placeholder when no money-bearing target is eligible", async () => {
@@ -149,7 +151,7 @@ test("bootstrap uses placeholder when no money-bearing target is eligible", asyn
 
   await bootstrapMain(ns);
 
-  assert.equal(calls.at(-1), "- run hack-once.js <target>");
+  assert.equal(calls.at(-1), "- run src/bin/hack-once.js <target>");
 });
 
 test("bootstrap nukes eligible zero-port servers before suggesting targets", async () => {
@@ -160,7 +162,7 @@ test("bootstrap nukes eligible zero-port servers before suggesting targets", asy
   await bootstrapMain(ns);
 
   assert.ok(calls.includes("nuke ready-target"));
-  assert.equal(calls.at(-1), "- run hack-once.js ready-target");
+  assert.equal(calls.at(-1), "- run src/bin/hack-once.js ready-target");
 });
 
 test("bootstrap opens available ports before nuking eligible servers", async () => {

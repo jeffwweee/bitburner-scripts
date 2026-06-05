@@ -2,6 +2,13 @@ const MANIFEST_URL =
   "https://raw.githubusercontent.com/jeffwweee/bitburner-scripts/main/manifest.json";
 const MANIFEST_TARGET = "tmp/bitburner-scripts-manifest.json";
 const SUPPORTED_VERSION = 1;
+const ALIASES = [
+  ["bb-import", "run import-repo.js"],
+  ["bb-bootstrap", "run src/bin/bootstrap.js"],
+  ["bb-scan", "run src/bin/scan.js"],
+  ["bb-auto", "run src/bin/auto-hack.js"],
+  ["bb-hack-once", "run src/bin/hack-once.js"]
+];
 
 function normalizeBaseUrl(baseUrl) {
   if (typeof baseUrl !== "string" || baseUrl.length === 0) {
@@ -73,6 +80,23 @@ function readManifest(ns) {
   return JSON.parse(manifestText);
 }
 
+export function buildAliasCommands() {
+  return ALIASES.map(([name, command]) => `alias ${name}="${command}"`);
+}
+
+function printAliasGuidance(ns) {
+  ns.tprint("Optional aliases:");
+
+  for (const command of buildAliasCommands()) {
+    ns.tprint(command);
+  }
+
+  ns.tprint("Common flow:");
+  ns.tprint("bb-import");
+  ns.tprint("bb-bootstrap");
+  ns.tprint("bb-auto");
+}
+
 export async function main(ns) {
   const cacheBust = String(Date.now());
   const manifestUrl = appendCacheBust(MANIFEST_URL, cacheBust);
@@ -108,4 +132,5 @@ export async function main(ns) {
 
   ns.tprint(`Import complete: ${downloaded} downloaded, ${failed} failed.`);
   ns.tprint("Next: run src/bin/bootstrap.js");
+  printAliasGuidance(ns);
 }
