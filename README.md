@@ -25,6 +25,18 @@ A maintainable script workspace that helps automate the run incrementally while 
 
 Official in-game documentation and generated NS API docs are primary references. The wiki is secondary gameplay context.
 
+## In-Game Import
+
+After this public repo is pushed to GitHub, copy the importer into Bitburner:
+
+```bash
+wget https://raw.githubusercontent.com/jeffwweee/bitburner-scripts/main/import-repo.js import-repo.js
+run import-repo.js
+run src/bin/bootstrap.js
+```
+
+`import-repo.js` downloads `manifest.json`, then downloads every listed `src/` file into the same in-game path.
+
 ## Current Status
 
-Initial scaffold in progress.
+Starter scaffold complete. Next focus: first in-game verification.

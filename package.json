@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/bin/bootstrap.js && node --check src/bin/scan.js && node --check src/bin/hack-once.js"
+    "check": "node --check import-repo.js && node --check src/bin/bootstrap.js && node --check src/bin/scan.js && node --check src/bin/hack-once.js"
   }
 }
