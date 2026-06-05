@@ -10,3 +10,5 @@
 - Added early auto-hack deployment that fills rooted server RAM with worker loops targeting the best eligible server.
 - Fixed suggested command paths and added importer alias guidance for common scripts.
 - Added `auto-purchaser.js` for conservative program and starter purchased-server purchases.
+- Fixed `auto-hack.js` retargeting by reclaiming old worker RAM and added `--stop`.
+- Added `server.js` as a five-minute automation loop over purchaser, bootstrap, and auto-hack.

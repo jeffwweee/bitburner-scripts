@@ -6,6 +6,7 @@
     "src/bin/auto-purchaser.js",
     "src/bin/bootstrap.js",
     "src/bin/scan.js",
+    "src/bin/server.js",
     "src/bin/hack-once.js",
     "src/bin/worker.js",
     "src/lib/format.js",

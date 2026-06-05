@@ -19,7 +19,8 @@ function buildWorkerSnapshot(ns, host) {
     host,
     hasRoot: ns.hasRootAccess(host),
     maxRam: ns.getServerMaxRam(host),
-    usedRam: ns.getServerUsedRam(host)
+    usedRam: ns.getServerUsedRam(host),
+    runningScripts: ns.ps(host)
   };
 }
 
@@ -51,7 +52,13 @@ export function planWorkerDeployments({
       continue;
     }
 
-    const freeRam = Math.max(worker.maxRam - worker.usedRam, 0);
+    const reclaimableWorkerRam = (worker.runningScripts ?? [])
+      .filter((script) => script.filename === workerScript)
+      .reduce((total, script) => total + script.threads * workerScriptRam, 0);
+    const freeRam = Math.max(
+      worker.maxRam - worker.usedRam + reclaimableWorkerRam,
+      0
+    );
     const threads = Math.floor(freeRam / workerScriptRam);
 
     if (threads < 1) {
@@ -74,6 +81,15 @@ export function planWorkerDeployments({
   };
 }
 
+export function planWorkerStops({ workerScript = WORKER_SCRIPT, workers }) {
+  return workers
+    .filter((worker) => worker.hasRoot)
+    .map((worker) => ({
+      host: worker.host,
+      script: workerScript
+    }));
+}
+
 async function deployWorker(ns, deployment) {
   await ns.scp(deployment.script, deployment.host, "home");
   ns.scriptKill(deployment.script, deployment.host);
@@ -85,16 +101,35 @@ async function deployWorker(ns, deployment) {
   );
 }
 
+function shouldStopWorkers(ns) {
+  return ns.args.includes("--stop");
+}
+
 export async function main(ns) {
-  const playerSkill = ns.getHackingLevel();
   const discoveredServers = discoverServers((host) => ns.scan(host), "home");
+  const workers = discoveredServers.map((server) =>
+    buildWorkerSnapshot(ns, server.host)
+  );
+
+  if (shouldStopWorkers(ns)) {
+    const stops = planWorkerStops({
+      workerScript: WORKER_SCRIPT,
+      workers
+    });
+
+    for (const stop of stops) {
+      ns.scriptKill(stop.script, stop.host);
+    }
+
+    ns.tprint(`Stopped ${WORKER_SCRIPT} on ${stops.length} rooted hosts.`);
+    return;
+  }
+
+  const playerSkill = ns.getHackingLevel();
   const rankedTargets = rankTargets(
     discoveredServers.map((server) =>
       buildTargetSnapshot(ns, server.host, playerSkill)
     )
-  );
-  const workers = discoveredServers.map((server) =>
-    buildWorkerSnapshot(ns, server.host)
   );
   const workerScriptRam = ns.getScriptRam(WORKER_SCRIPT, "home");
   const plan = planWorkerDeployments({

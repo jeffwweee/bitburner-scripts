@@ -35,12 +35,14 @@ run import-repo.js
 run src/bin/auto-purchaser.js
 run src/bin/bootstrap.js
 run src/bin/auto-hack.js
+run src/bin/server.js
 ```
 
 `import-repo.js` downloads `manifest.json`, then downloads every listed `src/` file into the same in-game path.
 
 Run `bootstrap.js` first to gain root access on eligible servers, then run `auto-hack.js` to copy workers to rooted servers and fill available RAM with passive weaken/grow/hack loops.
 Run `auto-purchaser.js` before bootstrap when you want to buy affordable hacking programs and starter worker servers while keeping a cash reserve.
+Run `server.js` when you want a long-running loop that reruns purchaser, bootstrap, and auto-hack every five minutes.
 
 After import, `import-repo.js` prints optional terminal aliases:
 
@@ -50,6 +52,7 @@ alias bb-bootstrap="run src/bin/bootstrap.js"
 alias bb-scan="run src/bin/scan.js"
 alias bb-auto="run src/bin/auto-hack.js"
 alias bb-buy="run src/bin/auto-purchaser.js"
+alias bb-server="run src/bin/server.js"
 alias bb-hack-once="run src/bin/hack-once.js"
 ```
 

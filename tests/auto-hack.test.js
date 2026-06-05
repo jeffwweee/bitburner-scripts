@@ -1,7 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { planWorkerDeployments } from "../src/bin/auto-hack.js";
+import {
+  planWorkerDeployments,
+  planWorkerStops
+} from "../src/bin/auto-hack.js";
 import { chooseWorkerAction } from "../src/bin/worker.js";
 
 test("chooseWorkerAction weakens when security is too high", () => {
@@ -74,6 +77,56 @@ test("planWorkerDeployments fills rooted servers with max worker threads", () =>
     { host: "sigma-cosmetics", reason: "no-root" },
     { host: "joesguns", reason: "insufficient-ram" }
   ]);
+});
+
+test("planWorkerDeployments treats existing worker RAM as reclaimable", () => {
+  const plan = planWorkerDeployments({
+    workerScript: "src/bin/worker.js",
+    workerScriptRam: 1.75,
+    targets: [
+      { host: "sigma-cosmetics", eligible: true, maxMoney: 200000, score: 20 }
+    ],
+    workers: [
+      {
+        host: "n00dles",
+        hasRoot: true,
+        maxRam: 4,
+        usedRam: 3.5,
+        runningScripts: [
+          {
+            filename: "src/bin/worker.js",
+            threads: 2
+          }
+        ]
+      }
+    ]
+  });
+
+  assert.deepEqual(plan.deployments, [
+    {
+      host: "n00dles",
+      threads: 2,
+      target: "sigma-cosmetics",
+      script: "src/bin/worker.js"
+    }
+  ]);
+});
+
+test("planWorkerStops returns rooted hosts for worker shutdown", () => {
+  assert.deepEqual(
+    planWorkerStops({
+      workerScript: "src/bin/worker.js",
+      workers: [
+        { host: "home", hasRoot: true },
+        { host: "n00dles", hasRoot: true },
+        { host: "foodnstuff", hasRoot: false }
+      ]
+    }),
+    [
+      { host: "home", script: "src/bin/worker.js" },
+      { host: "n00dles", script: "src/bin/worker.js" }
+    ]
+  );
 });
 
 test("planWorkerDeployments reports when no eligible target exists", () => {

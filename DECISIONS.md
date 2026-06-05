@@ -15,3 +15,6 @@
 - **2026-06-05** — Start purchases with `auto-purchaser.js`.
   - **Rationale:** Early automation needs port programs and more worker RAM, but should keep a 20 percent cash reserve and avoid server replacement complexity until basic purchases prove useful.
   - **Decided by:** Jeffrey and Codex
+- **2026-06-05** — Keep one-shot automation separate from the long-running server loop.
+  - **Rationale:** `auto-hack.js` should remain a debuggable retarget/deploy command, while `server.js` coordinates repeated purchaser, bootstrap, and auto-hack cycles every five minutes.
+  - **Decided by:** Jeffrey and Codex

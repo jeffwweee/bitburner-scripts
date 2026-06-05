@@ -8,6 +8,7 @@ const ALIASES = [
   ["bb-scan", "run src/bin/scan.js"],
   ["bb-auto", "run src/bin/auto-hack.js"],
   ["bb-buy", "run src/bin/auto-purchaser.js"],
+  ["bb-server", "run src/bin/server.js"],
   ["bb-hack-once", "run src/bin/hack-once.js"]
 ];
 
@@ -97,6 +98,7 @@ function printAliasGuidance(ns) {
   ns.tprint("bb-buy");
   ns.tprint("bb-bootstrap");
   ns.tprint("bb-auto");
+  ns.tprint("bb-server");
 }
 
 export async function main(ns) {
