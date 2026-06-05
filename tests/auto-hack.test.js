@@ -112,6 +112,61 @@ test("planWorkerDeployments treats existing worker RAM as reclaimable", () => {
   ]);
 });
 
+test("planWorkerDeployments reserves home RAM for controllers", () => {
+  const plan = planWorkerDeployments({
+    workerScript: "src/bin/worker.js",
+    workerScriptRam: 1.75,
+    homeReserveRam: 8,
+    targets: [
+      { host: "foodnstuff", eligible: true, maxMoney: 100000, score: 10 }
+    ],
+    workers: [{ host: "home", hasRoot: true, maxRam: 16, usedRam: 4 }]
+  });
+
+  assert.deepEqual(plan.deployments, [
+    {
+      host: "home",
+      threads: 2,
+      target: "foodnstuff",
+      script: "src/bin/worker.js"
+    }
+  ]);
+});
+
+test("planWorkerDeployments still reclaims old home workers before reserving RAM", () => {
+  const plan = planWorkerDeployments({
+    workerScript: "src/bin/worker.js",
+    workerScriptRam: 1.75,
+    homeReserveRam: 8,
+    targets: [
+      { host: "sigma-cosmetics", eligible: true, maxMoney: 200000, score: 20 }
+    ],
+    workers: [
+      {
+        host: "home",
+        hasRoot: true,
+        maxRam: 16,
+        usedRam: 7.5,
+        runningScripts: [
+          {
+            filename: "src/bin/worker.js",
+            threads: 2
+          }
+        ]
+      }
+    ]
+  });
+
+  assert.deepEqual(plan.deployments, [
+    {
+      host: "home",
+      threads: 2,
+      target: "sigma-cosmetics",
+      script: "src/bin/worker.js"
+    }
+  ]);
+});
+
 test("planWorkerStops returns rooted hosts for worker shutdown", () => {
   assert.deepEqual(
     planWorkerStops({

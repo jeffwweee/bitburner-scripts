@@ -8,6 +8,9 @@ const ALIASES = [
   ["bb-scan", "run src/bin/scan.js"],
   ["bb-auto", "run src/bin/auto-hack.js"],
   ["bb-buy", "run src/bin/auto-purchaser.js"],
+  ["bb-buy-programs", "run src/bin/buy-programs.js"],
+  ["bb-buy-servers", "run src/bin/buy-servers.js"],
+  ["bb-upgrade-home", "run src/bin/upgrade-home.js"],
   ["bb-server", "run src/bin/server.js"],
   ["bb-hack-once", "run src/bin/hack-once.js"]
 ];

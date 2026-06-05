@@ -2,6 +2,7 @@ import { discoverServers } from "../lib/network.js";
 import { rankTargets } from "../lib/targets.js";
 
 const WORKER_SCRIPT = "src/bin/worker.js";
+export const DEFAULT_HOME_RESERVE_RAM = 32;
 
 function buildTargetSnapshot(ns, host, playerSkill) {
   return {
@@ -31,6 +32,7 @@ function findDeploymentTarget(targets) {
 export function planWorkerDeployments({
   workerScript = WORKER_SCRIPT,
   workerScriptRam,
+  homeReserveRam = 0,
   targets,
   workers
 }) {
@@ -55,8 +57,9 @@ export function planWorkerDeployments({
     const reclaimableWorkerRam = (worker.runningScripts ?? [])
       .filter((script) => script.filename === workerScript)
       .reduce((total, script) => total + script.threads * workerScriptRam, 0);
+    const reservedRam = worker.host === "home" ? homeReserveRam : 0;
     const freeRam = Math.max(
-      worker.maxRam - worker.usedRam + reclaimableWorkerRam,
+      worker.maxRam - worker.usedRam + reclaimableWorkerRam - reservedRam,
       0
     );
     const threads = Math.floor(freeRam / workerScriptRam);
@@ -105,6 +108,22 @@ function shouldStopWorkers(ns) {
   return ns.args.includes("--stop");
 }
 
+function readHomeReserveRam(ns) {
+  const reserveFlagIndex = ns.args.indexOf("--home-reserve");
+
+  if (reserveFlagIndex === -1) {
+    return DEFAULT_HOME_RESERVE_RAM;
+  }
+
+  const requestedReserve = Number(ns.args[reserveFlagIndex + 1]);
+
+  if (!Number.isFinite(requestedReserve) || requestedReserve < 0) {
+    return DEFAULT_HOME_RESERVE_RAM;
+  }
+
+  return requestedReserve;
+}
+
 export async function main(ns) {
   const discoveredServers = discoverServers((host) => ns.scan(host), "home");
   const workers = discoveredServers.map((server) =>
@@ -135,6 +154,7 @@ export async function main(ns) {
   const plan = planWorkerDeployments({
     workerScript: WORKER_SCRIPT,
     workerScriptRam,
+    homeReserveRam: readHomeReserveRam(ns),
     targets: rankedTargets,
     workers
   });

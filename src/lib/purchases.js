@@ -80,3 +80,89 @@ export function planPurchasedServers({
     remainingMoney
   };
 }
+
+export function nextPurchasedServerRam(currentRam, maxServerRam) {
+  if (currentRam >= maxServerRam) {
+    return null;
+  }
+
+  return Math.min(currentRam * 2, maxServerRam);
+}
+
+function getUpgradeCost(upgradeCosts, hostname, ram) {
+  return upgradeCosts[`${hostname}:${ram}`] ?? Number.POSITIVE_INFINITY;
+}
+
+export function planPurchasedServerUpgrades({
+  money,
+  reserveRatio,
+  purchasedServers,
+  maxServerRam,
+  upgradeCosts
+}) {
+  const reserveFloor = getSpendFloor(money, reserveRatio);
+  const candidates = purchasedServers
+    .map((server) => {
+      const ram = nextPurchasedServerRam(server.ram, maxServerRam);
+
+      if (ram === null) {
+        return null;
+      }
+
+      return {
+        hostname: server.hostname,
+        ram,
+        cost: getUpgradeCost(upgradeCosts, server.hostname, ram)
+      };
+    })
+    .filter((candidate) => candidate !== null)
+    .filter((candidate) => Number.isFinite(candidate.cost))
+    .sort((left, right) => left.cost - right.cost || left.ram - right.ram);
+  const upgrades = [];
+  let remainingMoney = money;
+
+  for (const candidate of candidates) {
+    if (!canAffordAfterReserve(remainingMoney, candidate.cost, reserveFloor)) {
+      continue;
+    }
+
+    upgrades.push(candidate);
+    remainingMoney -= candidate.cost;
+  }
+
+  return {
+    upgrades,
+    remainingMoney
+  };
+}
+
+export function planHomeUpgrades({
+  money,
+  reserveRatio,
+  ramCost,
+  coreCost,
+  canUpgradeRam,
+  canUpgradeCores
+}) {
+  const reserveFloor = getSpendFloor(money, reserveRatio);
+  const candidates = [
+    canUpgradeRam ? { type: "ram", cost: ramCost } : null,
+    canUpgradeCores ? { type: "cores", cost: coreCost } : null
+  ].filter((candidate) => candidate !== null && Number.isFinite(candidate.cost));
+  const upgrades = [];
+  let remainingMoney = money;
+
+  for (const candidate of candidates) {
+    if (!canAffordAfterReserve(remainingMoney, candidate.cost, reserveFloor)) {
+      continue;
+    }
+
+    upgrades.push(candidate);
+    remainingMoney -= candidate.cost;
+  }
+
+  return {
+    upgrades,
+    remainingMoney
+  };
+}
