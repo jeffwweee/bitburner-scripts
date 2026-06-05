@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "baseUrl": "https://raw.githubusercontent.com/jeffwweee/bitburner-scripts/main",
+  "files": [
+    "src/bin/bootstrap.js",
+    "src/bin/scan.js",
+    "src/bin/hack-once.js",
+    "src/lib/format.js",
+    "src/lib/network.js",
+    "src/lib/targets.js",
+    "src/lib/import-manifest.js"
+  ]
+}
