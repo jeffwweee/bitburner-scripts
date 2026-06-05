@@ -47,3 +47,48 @@ test("rankTargets prefers eligible richer easier servers", () => {
   assert.equal(rankedTargets[0].host, "b");
   assert.equal(rankedTargets[0].eligible, true);
 });
+
+test("rankTargets prefers faster money over slow raw max money", () => {
+  const rankedTargets = rankTargets([
+    {
+      host: "slow-rich",
+      maxMoney: 1000000,
+      minSecurity: 1,
+      requiredSkill: 20,
+      playerSkill: 50,
+      hasRoot: true,
+      weakenTime: 8 * 60 * 1000
+    },
+    {
+      host: "fast-steady",
+      maxMoney: 100000,
+      minSecurity: 1,
+      requiredSkill: 20,
+      playerSkill: 50,
+      hasRoot: true,
+      weakenTime: 30 * 1000
+    }
+  ]);
+
+  assert.equal(rankedTargets[0].host, "fast-steady");
+});
+
+test("rankTargets marks targets over the max weaken time ineligible", () => {
+  const rankedTargets = rankTargets(
+    [
+      {
+        host: "max-hardware",
+        maxMoney: 1000000,
+        minSecurity: 1,
+        requiredSkill: 20,
+        playerSkill: 50,
+        hasRoot: true,
+        weakenTime: 8 * 60 * 1000
+      }
+    ],
+    { maxWeakenTime: 5 * 60 * 1000 }
+  );
+
+  assert.equal(rankedTargets[0].eligible, false);
+  assert.equal(rankedTargets[0].score, 0);
+});

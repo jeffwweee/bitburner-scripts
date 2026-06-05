@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  DEFAULT_MAX_WEAKEN_TIME_MS,
+  buildTargetSnapshot,
   planWorkerDeployments,
   planWorkerStops
 } from "../src/bin/auto-hack.js";
@@ -194,4 +196,32 @@ test("planWorkerDeployments reports when no eligible target exists", () => {
 
   assert.equal(plan.target, null);
   assert.deepEqual(plan.deployments, []);
+});
+
+test("buildTargetSnapshot includes action times for timed scoring", () => {
+  const ns = {
+    getServerMaxMoney: () => 100000,
+    getServerMinSecurityLevel: () => 1,
+    getServerRequiredHackingLevel: () => 10,
+    hasRootAccess: () => true,
+    getHackTime: () => 10000,
+    getGrowTime: () => 30000,
+    getWeakenTime: () => 40000
+  };
+
+  assert.deepEqual(buildTargetSnapshot(ns, "foodnstuff", 50), {
+    host: "foodnstuff",
+    maxMoney: 100000,
+    minSecurity: 1,
+    requiredSkill: 10,
+    playerSkill: 50,
+    hasRoot: true,
+    hackTime: 10000,
+    growTime: 30000,
+    weakenTime: 40000
+  });
+});
+
+test("auto-hack default max weaken time is five minutes", () => {
+  assert.equal(DEFAULT_MAX_WEAKEN_TIME_MS, 5 * 60 * 1000);
 });

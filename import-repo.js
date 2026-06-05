@@ -11,6 +11,7 @@ const ALIASES = [
   ["bb-buy-programs", "run src/bin/buy-programs.js"],
   ["bb-buy-servers", "run src/bin/buy-servers.js"],
   ["bb-upgrade-home", "run src/bin/upgrade-home.js"],
+  ["bb-faction-hack", "run src/bin/faction-hack.js"],
   ["bb-server", "run src/bin/server.js"],
   ["bb-hack-once", "run src/bin/hack-once.js"]
 ];

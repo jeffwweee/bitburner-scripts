@@ -29,7 +29,7 @@ function createHackOnceNs(overrides = {}) {
 function createBootstrapNs({
   playerSkill = 50,
   rootedHosts = [],
-  availablePrograms = []
+  availablePrograms = ["NUKE.exe"]
 } = {}) {
   const calls = [];
   const rooted = new Set(rootedHosts);
@@ -72,6 +72,9 @@ function createBootstrapNs({
       getServerMaxMoney: (host) => serverStats.get(host).maxMoney,
       getServerMinSecurityLevel: (host) => serverStats.get(host).minSecurity,
       getServerRequiredHackingLevel: (host) => serverStats.get(host).requiredSkill,
+      getHackTime: () => 1000,
+      getGrowTime: () => 3000,
+      getWeakenTime: () => 4000,
       getServerNumPortsRequired: (host) => serverStats.get(host).requiredPorts ?? 0,
       hasRootAccess: (host) => rooted.has(host),
       fileExists: (file) => programs.has(file),
@@ -168,7 +171,7 @@ test("bootstrap nukes eligible zero-port servers before suggesting targets", asy
 test("bootstrap opens available ports before nuking eligible servers", async () => {
   const { ns, calls } = createBootstrapNs({
     rootedHosts: ["home", "ready-target"],
-    availablePrograms: ["BruteSSH.exe"],
+    availablePrograms: ["NUKE.exe", "BruteSSH.exe"],
     playerSkill: 50
   });
 
@@ -192,10 +195,23 @@ test("bootstrap skips rooting servers above the current hacking skill", async ()
 test("bootstrap skips rooting servers without enough port tools", async () => {
   const { ns, calls } = createBootstrapNs({
     rootedHosts: ["home", "ready-target"],
+    availablePrograms: ["NUKE.exe"],
     playerSkill: 50
   });
 
   await bootstrapMain(ns);
 
   assert.equal(calls.includes("nuke locked-target"), false);
+});
+
+test("bootstrap reports when NUKE.exe is missing", async () => {
+  const { ns, calls } = createBootstrapNs({
+    rootedHosts: ["home"],
+    availablePrograms: []
+  });
+
+  await bootstrapMain(ns);
+
+  assert.equal(calls.includes("nuke ready-target"), false);
+  assert.ok(calls.some((message) => /NUKE\.exe/i.test(message)));
 });

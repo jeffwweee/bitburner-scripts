@@ -34,13 +34,19 @@ function getAvailableOpeners(ns) {
   return PORT_OPENERS.filter((opener) => ns.fileExists(opener.file, "home"));
 }
 
+function hasNuke(ns) {
+  return ns.fileExists("NUKE.exe", "home");
+}
+
 function rootEligibleServers(ns, discoveredServers, playerSkill) {
   const availableOpeners = getAvailableOpeners(ns);
   const summary = {
     rooted: [],
+    missingNuke: false,
     skippedSkill: 0,
     skippedPorts: 0
   };
+  const canNuke = hasNuke(ns);
 
   for (const server of discoveredServers) {
     const host = server.host;
@@ -51,6 +57,11 @@ function rootEligibleServers(ns, discoveredServers, playerSkill) {
 
     if (ns.getServerRequiredHackingLevel(host) > playerSkill) {
       summary.skippedSkill += 1;
+      continue;
+    }
+
+    if (!canNuke) {
+      summary.missingNuke = true;
       continue;
     }
 
@@ -78,6 +89,10 @@ function printRootSummary(ns, summary) {
   for (const host of summary.rooted) {
     ns.tprint(`- rooted ${host}`);
   }
+
+  if (summary.missingNuke) {
+    ns.tprint("Root access: NUKE.exe is missing on home.");
+  }
 }
 
 function buildTargetSnapshot(ns, host, playerSkill) {
@@ -87,7 +102,10 @@ function buildTargetSnapshot(ns, host, playerSkill) {
     minSecurity: ns.getServerMinSecurityLevel(host),
     requiredSkill: ns.getServerRequiredHackingLevel(host),
     playerSkill,
-    hasRoot: ns.hasRootAccess(host)
+    hasRoot: ns.hasRootAccess(host),
+    hackTime: ns.getHackTime(host),
+    growTime: ns.getGrowTime(host),
+    weakenTime: ns.getWeakenTime(host)
   };
 }
 

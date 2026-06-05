@@ -5,6 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check import-repo.js && node --check src/bin/auto-hack.js && node --check src/bin/auto-purchaser.js && node --check src/bin/bootstrap.js && node --check src/bin/buy-programs.js && node --check src/bin/buy-servers.js && node --check src/bin/scan.js && node --check src/bin/server.js && node --check src/bin/hack-once.js && node --check src/bin/upgrade-home.js && node --check src/bin/worker.js"
+    "check": "node --check import-repo.js && node --check src/bin/auto-hack.js && node --check src/bin/auto-purchaser.js && node --check src/bin/bootstrap.js && node --check src/bin/buy-programs.js && node --check src/bin/buy-servers.js && node --check src/bin/faction-hack.js && node --check src/bin/scan.js && node --check src/bin/server.js && node --check src/bin/hack-once.js && node --check src/bin/upgrade-home.js && node --check src/bin/worker.js"
   }
 }

@@ -1,17 +1,22 @@
 import { discoverServers } from "../lib/network.js";
 import { rankTargets } from "../lib/targets.js";
+import { formatDuration } from "../lib/format.js";
 
 const WORKER_SCRIPT = "src/bin/worker.js";
 export const DEFAULT_HOME_RESERVE_RAM = 32;
+export const DEFAULT_MAX_WEAKEN_TIME_MS = 5 * 60 * 1000;
 
-function buildTargetSnapshot(ns, host, playerSkill) {
+export function buildTargetSnapshot(ns, host, playerSkill) {
   return {
     host,
     maxMoney: ns.getServerMaxMoney(host),
     minSecurity: ns.getServerMinSecurityLevel(host),
     requiredSkill: ns.getServerRequiredHackingLevel(host),
     playerSkill,
-    hasRoot: ns.hasRootAccess(host)
+    hasRoot: ns.hasRootAccess(host),
+    hackTime: ns.getHackTime(host),
+    growTime: ns.getGrowTime(host),
+    weakenTime: ns.getWeakenTime(host)
   };
 }
 
@@ -124,6 +129,28 @@ function readHomeReserveRam(ns) {
   return requestedReserve;
 }
 
+function readMaxWeakenTime(ns) {
+  const maxTimeFlagIndex = ns.args.indexOf("--max-weaken-time");
+
+  if (maxTimeFlagIndex === -1) {
+    return DEFAULT_MAX_WEAKEN_TIME_MS;
+  }
+
+  const requestedMaxTime = Number(ns.args[maxTimeFlagIndex + 1]);
+
+  if (!Number.isFinite(requestedMaxTime) || requestedMaxTime <= 0) {
+    return DEFAULT_MAX_WEAKEN_TIME_MS;
+  }
+
+  return requestedMaxTime;
+}
+
+function printTargetChoice(ns, target) {
+  ns.tprint(
+    `Target choice: ${target.host} weaken=${formatDuration(target.weakenTime)} hack=${formatDuration(target.hackTime)} score=${target.score.toFixed(4)}.`
+  );
+}
+
 export async function main(ns) {
   const discoveredServers = discoverServers((host) => ns.scan(host), "home");
   const workers = discoveredServers.map((server) =>
@@ -145,10 +172,12 @@ export async function main(ns) {
   }
 
   const playerSkill = ns.getHackingLevel();
+  const maxWeakenTime = readMaxWeakenTime(ns);
   const rankedTargets = rankTargets(
     discoveredServers.map((server) =>
       buildTargetSnapshot(ns, server.host, playerSkill)
-    )
+    ),
+    { maxWeakenTime }
   );
   const workerScriptRam = ns.getScriptRam(WORKER_SCRIPT, "home");
   const plan = planWorkerDeployments({
@@ -161,8 +190,16 @@ export async function main(ns) {
 
   if (!plan.target) {
     ns.tprint("No eligible money-bearing target found. Run bootstrap.js first.");
+    ns.tprint(
+      `Current max weaken time: ${formatDuration(maxWeakenTime)}. Override with --max-weaken-time <ms>.`
+    );
     return;
   }
+
+  printTargetChoice(
+    ns,
+    rankedTargets.find((target) => target.host === plan.target)
+  );
 
   let started = 0;
 

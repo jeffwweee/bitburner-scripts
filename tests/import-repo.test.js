@@ -13,6 +13,7 @@ test("buildAliasCommands returns common Bitburner aliases", () => {
     'alias bb-buy-programs="run src/bin/buy-programs.js"',
     'alias bb-buy-servers="run src/bin/buy-servers.js"',
     'alias bb-upgrade-home="run src/bin/upgrade-home.js"',
+    'alias bb-faction-hack="run src/bin/faction-hack.js"',
     'alias bb-server="run src/bin/server.js"',
     'alias bb-hack-once="run src/bin/hack-once.js"'
   ]);

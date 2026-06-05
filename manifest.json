@@ -7,6 +7,7 @@
     "src/bin/bootstrap.js",
     "src/bin/buy-programs.js",
     "src/bin/buy-servers.js",
+    "src/bin/faction-hack.js",
     "src/bin/scan.js",
     "src/bin/server.js",
     "src/bin/hack-once.js",
