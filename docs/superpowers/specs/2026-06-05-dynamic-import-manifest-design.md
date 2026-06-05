@@ -62,7 +62,7 @@ Only `src/` files are imported for now.
 
 ## Helper Boundary
 
-Importer validation and URL planning should live in `src/lib/import-manifest.js` so it can be tested locally. The runnable `import-repo.js` remains a thin Netscript wrapper around `ns.wget`, `ns.read`, and `ns.tprint`.
+Importer validation and URL planning should live in `src/lib/import-manifest.js` so it can be tested locally. The runnable `import-repo.js` must still be self-contained, because the first install path is manually copying only `import-repo.js` into Bitburner. To preserve that workflow, `import-repo.js` will include the same small validation/planning logic locally instead of importing from `src/lib/import-manifest.js`.
 
 ## Error Handling
 
@@ -81,4 +81,4 @@ Local tests should cover:
 - Paths containing `..` are rejected.
 - `import-repo.js` is rejected if listed.
 
-The runnable importer will be syntax-checked with `node --check import-repo.js`.
+The runnable importer will be syntax-checked with `node --check import-repo.js`. Local helper tests cover the validation behavior used by the importer.
