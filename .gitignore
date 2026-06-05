@@ -1,1 +1,14 @@
 .worktrees/
+
+node_modules/
+.tmp/
+.cache/
+coverage/
+dist/
+
+# Local Bitburner exports and runtime noise
+bitburner-export/
+bitburner-exports/
+Bitburner/
+bitburnerSave_*.json
+*.bb-backup

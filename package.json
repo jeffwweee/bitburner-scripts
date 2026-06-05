@@ -1,0 +1,10 @@
+{
+  "name": "bitburner-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/bin/bootstrap.js && node --check src/bin/scan.js && node --check src/bin/hack-once.js"
+  }
+}
