@@ -36,6 +36,7 @@ export async function main(ns) {
   const bestTargets = rankedTargets
     .filter((target) => target.maxMoney > 0)
     .slice(0, TOP_TARGET_COUNT);
+  const suggestedTarget = bestTargets.find((target) => target.eligible);
 
   ns.tprint(`Hacking skill: ${playerSkill}`);
   ns.tprint(`Discovered servers: ${discoveredServers.length}`);
@@ -52,8 +53,8 @@ export async function main(ns) {
   ns.tprint("Suggested next commands:");
   ns.tprint("- run scan.js");
 
-  if (bestTargets[0]) {
-    ns.tprint(`- run hack-once.js ${bestTargets[0].host}`);
+  if (suggestedTarget) {
+    ns.tprint(`- run hack-once.js ${suggestedTarget.host}`);
   } else {
     ns.tprint("- run hack-once.js <target>");
   }
